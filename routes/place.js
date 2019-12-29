@@ -4,6 +4,9 @@ var router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 
+const {BASEAPPURL} = require('../config');
+const {upload} = require('../config');
+
 const url = 'mongodb+srv://sivithu:caca@cluster0-abdkp.mongodb.net/test?retryWrites=true&w=majority';
 const dbName = 'findout';
 
@@ -32,12 +35,13 @@ router.get('/getByIdCategory', function(req, res, next) {
     });
 });
 
-router.post('/addPlace',  async function(req, res){
+router.post('/addPlace', upload.single('image'), async function(req, res){
     var client = new MongoClient(url);
 
     client.connect()
         .then(async function(response){
-
+            console.log(req.file);
+            console.log(req.body);
             const db = client.db(dbName);
             const user_message = {
                 name: req.body.name,
@@ -45,6 +49,7 @@ router.post('/addPlace',  async function(req, res){
                     lon: req.body.coordinate.lon,
                     lat: req.body.coordinate.lat
                 },
+                url_image : BASEAPPURL + req.file.path,
                 nb_seat: req.body.nb_seat,
                 nb_seat_free: req.body.nb_seat_free,
                 address: req.body.address,
