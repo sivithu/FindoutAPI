@@ -31,15 +31,15 @@ router.get('/getAll', function(req, res, next) {
     });
 });
 
-router.get('/getByIdActivity', function(req, res, next) {
+router.get('/getByIdActivity/:idActivity', function(req, res, next) {
     var client = new MongoClient(url);
-    var idActivity = req.body.idActivity;
+    var idActivity = req.params.idActivity;
     client.connect()
         .then(async function(response){
             console.log("Connected to database");
             const db = client.db(dbName);
-            const col = await db.collection('category').find({idActivity : ObjectId(idActivity)}).toArray();
-
+            const col = await db.collection('category').find({id_activity : ObjectId(idActivity)}).toArray();
+            console.log(col)
             client.close();
             res.send({
                 error: null,

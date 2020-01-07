@@ -10,20 +10,20 @@ const {upload} = require('../config');
 const url = 'mongodb+srv://sivithu:caca@cluster0-abdkp.mongodb.net/test?retryWrites=true&w=majority';
 const dbName = 'findout';
 
-router.get('/getByIdCategory', function(req, res, next) {
+router.get('/getByIdCategory/:idCategory', function(req, res, next) {
     var client = new MongoClient(url);
-    var idCategory = req.body.idCategory;
+    var idCategory = req.params.idCategory;
 
     client.connect()
         .then(async function(response){
             console.log("Connected to database");
             const db = client.db(dbName);
-            const col = await db.collection('place').find({idCategory : ObjectId(idCategory)}).toArray();
-
+            const col = await db.collection('place').find({id_category : ObjectId(idCategory)}).toArray();
+            console.log(col)
             client.close();
             res.send({
                 error: null,
-                activity: col
+                place: col
             });
 
         }).catch(function(error){
@@ -46,13 +46,14 @@ router.post('/addPlace', upload.single('image'), async function(req, res){
             const user_message = {
                 name: req.body.name,
                 coordinate: {
-                    lon: req.body.coordinate.lon,
-                    lat: req.body.coordinate.lat
+                    lon: parseFloat(req.body.coordinate.lon),
+                    lat: parseFloat(req.body.coordinate.lat)
                 },
                 url_image : BASEAPPURL + req.file.path,
                 nb_seat: req.body.nb_seat,
                 nb_seat_free: req.body.nb_seat_free,
                 address: req.body.address,
+                id_category : req.body.idCategory,
                 disponibilityStartTime: req.body.disponibilityStartTime,
                 disponibilityEndTime: req.body.disponibilityEndTime,
                 id_user: ObjectId(req.body.id_user)

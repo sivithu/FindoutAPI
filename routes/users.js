@@ -32,6 +32,32 @@ router.get('/getAll', function(req, res, next) {
     });
 });
 
+router.get('/connect/:email/:password', function(req, res, next) {
+    var client = new MongoClient(url);
+    var email = req.params.email;
+    var password = req.params.password;
+
+    client.connect()
+        .then(async function(response){
+            console.log("Connected to database");
+            const db = client.db(dbName);
+            const col = await db.collection('users').find({email : email, password : password}).toArray();
+            console.log(col)
+            client.close();
+            res.send({
+                error: null,
+                user: col
+            });
+
+        }).catch(function(error){
+        console.log("Error server " + error.stack);
+        res.send({
+            error: error.stack,
+            user: []
+        });
+    });
+});
+
 router.post('/addUser',  async function(req, res){
     var client = new MongoClient(url);
 
