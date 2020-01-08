@@ -32,32 +32,6 @@ router.get('/getAll', function(req, res, next) {
     });
 });
 
-router.get('/connect/:email/:password', function(req, res, next) {
-    var client = new MongoClient(url);
-    var email = req.params.email;
-    var password = req.params.password;
-
-    client.connect()
-        .then(async function(response){
-            console.log("Connected to database");
-            const db = client.db(dbName);
-            const col = await db.collection('users').find({email : email, password : password}).toArray();
-            console.log(col)
-            client.close();
-            res.send({
-                error: null,
-                user: col
-            });
-
-        }).catch(function(error){
-        console.log("Error server " + error.stack);
-        res.send({
-            error: error.stack,
-            user: []
-        });
-    });
-});
-
 router.post('/addUser',  async function(req, res){
     var client = new MongoClient(url);
 
@@ -86,7 +60,7 @@ router.post('/addUser',  async function(req, res){
 
 
         }).catch(function(error){
-        console.log("Error server " + error.stack)
+        console.log("Error server " + error.stack);
         res.send({
             error: error.message,
             notes: []
@@ -94,36 +68,38 @@ router.post('/addUser',  async function(req, res){
     });
 });
 
-router.post('/signup', async function(req, res, next){
-    var client = new MongoClient(url);
-    const email = req.body.email;
-    const password = req.body.password;
-
-    client.connect()
-        .then(async function(response){
-            //CheckingParams(username, password, res);
-            const db = client.db(dbName);
-            const sameUserNameInDb = await db.collection('users').find( {email: email, password: password} ).toArray();
-
-            if(sameUserNameInDb.length === 0){
-                res.status(400).send({
-                    error: 'Cet identifiant est inconnu'
-                });
-            } else {
-                res.status(200).send({
-                    error: null,
-                    email: email
-                });
-            }
-            client.close();
-        }).catch(function(error){
-        client.close();
-        res.status(500).send({
-            error: error,
-            token: null
-        });
-    });
+router.post('/connect', async function (req, res) {
+    const client = new MongoClient(url);
+    try {
+        await client.connect();
+        const db = client.db(dbName);
+        const col = db.collection('users');
+        var result = await col.find({email: req.body.email, password: req.body.password}).toArray();
+        if (result.length) {
+            res.send({
+                user: {
+                    id: result[0].id,
+                    firstname: result[0].firstname,
+                    lastname: result[0].lastname,
+                    password: result[0].password,
+                    birthDate: result[0].birthDate,
+                    email: result[0].email,
+                    gender: result[0].gender,
+                    telephone: result[0].telephone
+                },
+                error: null
+            });
+        } else {
+            res.status(403).send({
+                error: 'Cet identifiant ou mot de passe est inconnu'
+            });
+        }
+    } catch (err) {
+        res.send({
+            error: err
+        })
+    }
+    client.close();
 });
-
 
 module.exports = router;
