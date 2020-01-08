@@ -78,7 +78,7 @@ router.post('/connect', async function (req, res) {
         if (result.length) {
             res.send({
                 user: {
-                    id: result[0].id,
+                    _id: result[0]._id,
                     firstname: result[0].firstname,
                     lastname: result[0].lastname,
                     password: result[0].password,
