@@ -39,32 +39,29 @@ router.post('/addUser',  async function(req, res){
         .then(async function(response){
 
             const db = client.db(dbName);
-            const user_message = {
-                firstname: req.body.firstname,
-                lastname: req.body.lastname,
-                password: req.body.password,
-                birthDate: req.body.birthDate,
-                email: req.body.email,
-                gender: req.body.gender,
-                telephone: req.body.telephone
-            };
 
-            const r = await db.collection('users').insertOne(user_message);
-            const inseredNote = await db.collection('users').find({}).toArray();
-            console.log(user_message);
-            client.close();
-            res.send({
-                    inseredNote
-                }
-            );
+            let data = await db.collection('users').find({}).toArray();
+            if (data.some(data => data.email === req.body.email)) {
+                res.status(400).send({error: 'Cet email est déjà associé à un compte'});
+            } else {
+                const user_message = {
+                    firstname: req.body.firstname,
+                    lastname: req.body.lastname,
+                    password: req.body.password,
+                    birthDate: req.body.birthDate,
+                    email: req.body.email,
+                    gender: req.body.gender,
+                    telephone: req.body.telephone
+                };
 
-
+                const r = await db.collection('users').insertOne(user_message);
+                const inseredNote = await db.collection('users').find({ email: req.body.email, password: req.body.password}).toArray();
+                res.send({
+                        user: inseredNote[0]
+                });
+            }
         }).catch(function(error){
         console.log("Error server " + error.stack);
-        res.send({
-            error: error.message,
-            notes: []
-        });
     });
 });
 
