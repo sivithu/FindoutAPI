@@ -32,6 +32,7 @@ app.use('/place', placeRouter);
 app.use('/notation', notationRouter);
 app.use('/favoris', favorisRouter);
 app.use('/disponibility', disponibilityRouter);
+app.use('/public/images', express.static('public/images'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
