@@ -50,7 +50,7 @@ router.get('/getByIdCategory/:idCategory', function(req, res, next) {
             if(col.length > 0) {
                 col.forEach(val => {
                     arrAddress = val.address.split(", ");
-                    arr.push({_id : val._id, name : val.name, url_image : val.url_image, nb_seat: val.nb_seat,
+                    arr.push({_id : val._id, name : val.name, url_image : val.url_image, nb_seat: val.nb_seat, coordinate: val.coordinate,
                         nb_seat_free: val.nb_seat_free, id_category: val.id_category, disponibilityStartTime: val.disponibilityStartTime,
                         disponibilityEndTime: val.disponibilityEndTime, id_user: val.id_user, arrAddress: arrAddress, address: val.address});
                 })
