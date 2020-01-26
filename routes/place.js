@@ -85,8 +85,8 @@ router.post('/addPlace', upload.single('image'), async function(req, res){
                     lat: parseFloat(req.body.coordinate.lat)
                 },
                 url_image : BASEAPPURL + req.file.path,
-                nb_seat: req.body.nb_seat,
-                nb_seat_free: req.body.nb_seat_free,
+                nb_seat: parseInt(req.body.nb_seat),
+                nb_seat_free: parseInt(req.body.nb_seat_free),
                 address: req.body.address,
                 id_category : ObjectId(req.body.idCategory),
                 disponibilityStartTime: req.body.disponibilityStartTime,
