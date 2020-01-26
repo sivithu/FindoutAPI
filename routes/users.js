@@ -74,6 +74,7 @@ router.post('/connect', async function (req, res) {
         var result = await col.find({email: req.body.email, password: req.body.password}).toArray();
         if (result.length) {
             res.send({
+                error: null,
                 user: {
                     _id: result[0]._id,
                     firstname: result[0].firstname,
@@ -83,17 +84,18 @@ router.post('/connect', async function (req, res) {
                     email: result[0].email,
                     gender: result[0].gender,
                     telephone: result[0].telephone
-                },
-                error: null
+                }
             });
         } else {
             res.status(403).send({
-                error: 'Cet identifiant ou mot de passe est inconnu'
+                error: 'Cet identifiant ou mot de passe est inconnu',
+                user: []
             });
         }
     } catch (err) {
         res.send({
-            error: err
+            error: err,
+            user: []
         })
     }
     client.close();

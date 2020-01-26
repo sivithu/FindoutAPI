@@ -10,6 +10,31 @@ const {upload} = require('../config');
 const url = 'mongodb+srv://sivithu:caca@cluster0-abdkp.mongodb.net/test?retryWrites=true&w=majority';
 const dbName = 'findout';
 
+router.get('/getById/:id', function(req, res, next) {
+    var client = new MongoClient(url);
+    var idPlace = req.params.id;
+
+    client.connect()
+        .then(async function(response){
+            console.log("Connected to database");
+            const db = client.db(dbName);
+            const col = await db.collection('place').find({_id : ObjectId(idPlace)}).toArray();
+
+            client.close();
+            res.send({
+                error: null,
+                place : col
+            });
+
+        }).catch(function(error){
+        console.log("Error server " + error.stack);
+        res.send({
+            error: error.stack,
+            place: []
+        });
+    });
+});
+
 router.get('/getByIdCategory/:idCategory', function(req, res, next) {
     var client = new MongoClient(url);
     var idCategory = req.params.idCategory;
@@ -19,18 +44,28 @@ router.get('/getByIdCategory/:idCategory', function(req, res, next) {
             console.log("Connected to database");
             const db = client.db(dbName);
             const col = await db.collection('place').find({id_category : ObjectId(idCategory)}).toArray();
-            console.log(col)
+
+            var arrAddress = [];
+            var arr = [];
+            if(col.length > 0) {
+                col.forEach(val => {
+                    arrAddress = val.address.split(", ");
+                    arr.push({_id : val._id, name : val.name, url_image : val.url_image, nb_seat: val.nb_seat,
+                        nb_seat_free: val.nb_seat_free, id_category: val.id_category, disponibilityStartTime: val.disponibilityStartTime,
+                        disponibilityEndTime: val.disponibilityEndTime, id_user: val.id_user, arrAddress: arrAddress, address: val.address});
+                })
+            }
             client.close();
             res.send({
                 error: null,
-                place: col
+                place : arr
             });
 
         }).catch(function(error){
         console.log("Error server " + error.stack);
         res.send({
             error: error.stack,
-            notes: []
+            place: []
         });
     });
 });
@@ -53,7 +88,7 @@ router.post('/addPlace', upload.single('image'), async function(req, res){
                 nb_seat: req.body.nb_seat,
                 nb_seat_free: req.body.nb_seat_free,
                 address: req.body.address,
-                id_category : req.body.idCategory,
+                id_category : ObjectId(req.body.idCategory),
                 disponibilityStartTime: req.body.disponibilityStartTime,
                 disponibilityEndTime: req.body.disponibilityEndTime,
                 id_user: ObjectId(req.body.id_user)
