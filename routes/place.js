@@ -20,10 +20,20 @@ router.get('/getById/:id', function(req, res, next) {
             const db = client.db(dbName);
             const col = await db.collection('place').find({_id : ObjectId(idPlace)}).toArray();
 
+            var arrAddress = [];
+            var arr = [];
+            if(col.length > 0) {
+                col.forEach(val => {
+                    arrAddress = val.address.split(", ");
+                    arr.push({_id : val._id, name : val.name, url_image : val.url_image, nb_seat: val.nb_seat, coordinate: val.coordinate,
+                        nb_seat_free: val.nb_seat_free, id_category: val.id_category, disponibilityStartTime: val.disponibilityStartTime,
+                        disponibilityEndTime: val.disponibilityEndTime, id_user: val.id_user, arrAddress: arrAddress, address: val.address});
+                })
+            }
             client.close();
             res.send({
                 error: null,
-                place : col
+                place : arr
             });
 
         }).catch(function(error){
