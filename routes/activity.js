@@ -14,12 +14,22 @@ router.get('/getAll', function(req, res, next) {
         .then(async function(response){
             console.log("Connected to database");
             const db = client.db(dbName);
-            const col = await db.collection('activity').find({}).toArray();
+            const activites = await db.collection('activity').find({}).toArray();
+            const categories = await db.collection('category').find({}).toArray();
 
-            client.close();
+            activites.forEach(activity => {
+                let categoriesArray = [];
+                categories.forEach(category => {
+                    if(ObjectId(category.id_activity).equals(ObjectId(activity._id))) {
+                        categoriesArray.push(category)
+                    }
+                });
+                activity["categories"] = categoriesArray;
+            });
+
             res.send({
                 error: null,
-                activity: col
+                activity: activites
             });
 
         }).catch(function(error){
