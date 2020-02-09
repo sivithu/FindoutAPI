@@ -31,6 +31,31 @@ router.get('/getAll', function(req, res, next) {
     });
 });
 
+router.get('/getByIdUser/:id', function(req, res, next) {
+    var client = new MongoClient(url);
+    var idUser = req.params.id;
+
+    client.connect()
+        .then(async function(response){
+            console.log("Connected to database");
+            const db = client.db(dbName);
+            const col = await db.collection('disponibility').find({id_user : ObjectId(idUser)}).toArray();
+            console.log(col)
+            client.close();
+            res.send({
+                error: null,
+                disponibility: col
+            });
+
+        }).catch(function(error){
+        console.log("Error server " + error.stack);
+        res.send({
+            error: error.stack,
+            disponibility: []
+        });
+    });
+});
+
 router.get('/getByIdPlace/:idPlace', function(req, res, next) {
     var client = new MongoClient(url);
     var idPlace = req.params.idPlace;
